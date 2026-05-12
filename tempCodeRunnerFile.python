@@ -1,0 +1,66 @@
+from flask import Flask, render_template, request
+import mysql.connector
+import smtplib
+from email.mime.text import MIMEText
+
+app = Flask(__name__)
+
+# MySQL Connection
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="YOUR_PASSWORD",
+    database="formdb"
+)
+
+cursor = db.cursor()
+
+@app.route("/", methods=["GET", "POST"])
+def form():
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        contact = request.form["contact"]
+
+        # Save to SQL
+        sql = "INSERT INTO contacts (name, contact) VALUES (%s, %s)"
+        values = (name, contact)
+
+        cursor.execute(sql, values)
+        db.commit()
+
+        # Email Configuration
+        sender_email = "yourgmail@gmail.com"
+        sender_password = "YOUR_APP_PASSWORD"
+
+        receiver_email = "senior@gmail.com"
+
+        body = f"""
+        New Contact Submission
+
+        Name: {name}
+        Contact: {contact}
+        """
+
+        msg = MIMEText(body)
+
+        msg["Subject"] = "New Contact Form"
+        msg["From"] = sender_email
+        msg["To"] = receiver_email
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+
+        server.login(sender_email, sender_password)
+
+        server.send_message(msg)
+
+        server.quit()
+
+        return "Submitted Successfully!"
+
+    return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
