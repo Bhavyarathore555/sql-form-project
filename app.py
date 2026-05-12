@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -42,9 +45,9 @@ def form():
 
         # EMAIL SECTION
 
-        sender_email = "bhavya5551rathore@gmail.com"
-
-        sender_password = "qozz zcts iqlm lpsp"
+        sender_email = os.getenv("EMAIL")
+        
+        sender_password = os.getenv("PASSWORD")
 
         receiver_email = "bhavyarathore5551@gmail.com"
 
